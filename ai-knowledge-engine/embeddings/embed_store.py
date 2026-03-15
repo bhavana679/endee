@@ -131,7 +131,8 @@ class EmbeddingPipeline:
             
             result = genai.embed_content(
                 model=self.model_name,
-                content=chunks
+                content=chunks,
+                task_type="retrieval_document"
             )
             embeddings = result['embedding']
             

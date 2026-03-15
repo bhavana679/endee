@@ -10,7 +10,7 @@ CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
 
 # Embedding settings (Gemini)
-EMBEDDING_MODEL_NAME = "models/embedding-001"
+EMBEDDING_MODEL_NAME = "models/text-embedding-004"
 EMBEDDING_DIMENSION = 768
 
 # Endee Vector DB settings
