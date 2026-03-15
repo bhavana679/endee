@@ -8,7 +8,9 @@ class EndeeClient:
     A minimal API client for interacting with the local Endee Vector Database.
     """
     def __init__(self, host: str = "localhost", port: int = 8080, auth_token: str = None):
-        self.base_url = f"http://{host}:{port}/api/v1"
+        # Determine protocol based on port (443 is usually HTTPS)
+        protocol = "https" if str(port) == "443" else "http"
+        self.base_url = f"{protocol}://{host}:{port}/api/v1"
         self.headers = {"Content-Type": "application/json"}
         if auth_token:
             self.headers["Authorization"] = auth_token
