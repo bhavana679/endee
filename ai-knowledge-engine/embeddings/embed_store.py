@@ -133,7 +133,7 @@ class EmbeddingPipeline:
                 content=chunks,
                 task_type="retrieval_document"
             )
-            embeddings = result['embeddings']
+            embeddings = result['embedding']
             
             # Step 3: Prepare Endee payloads with metadata
             vectors_payload = []

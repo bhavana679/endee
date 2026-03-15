@@ -19,6 +19,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
+@app.get("/")
+def root():
+    return {
+        "message": "Welcome to the AI Engineering Knowledge Memory Engine API!",
+        "docs": "/docs",
+        "health": "/health"
+    }
+
 # Initialize application dependencies
 rag_pipeline = RAGPipeline()
 endee_client = EndeeClient(host=ENDEE_HOST, port=int(ENDEE_PORT))
