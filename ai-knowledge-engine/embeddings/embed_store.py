@@ -85,8 +85,7 @@ class EmbeddingPipeline:
             logger.info(f"Connected to Endee DB successful. Health timestamp: {health.get('timestamp')}")
         except Exception as e:
             logger.error(f"Failed to connect to Endee Vector Database at {ENDEE_HOST}:{ENDEE_PORT}.")
-            logger.error("Please make sure the Endee server is running before executing this script.")
-            sys.exit(1)
+            raise RuntimeError(f"Database connection failed: {str(e)}")
 
         # Check for and create the required index
         indexes = self.endee_client.list_indexes()
