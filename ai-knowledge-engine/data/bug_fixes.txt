@@ -1,0 +1,3 @@
+Bug 1032: Vector precision loss during ingest
+Root Cause: The text chunker was splitting directly in the middle of words, causing tokenization failures in the embedding model.
+Fix: Adjusted chunking algorithm to only split at word boundaries by checking for spaces before creating the substring chunks.

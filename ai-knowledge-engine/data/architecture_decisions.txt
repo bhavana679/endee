@@ -1,0 +1,3 @@
+ADR-001: Modular Architecture for RAG Engine
+Decision: We will modularize our AI Engine. Modules include data, embeddings, retrieval, rag, api, and ui.
+Rationale: A modular structure reduces tight coupling, enabling the Endee vector search to be iterated upon independently of the FastAPI and Streamlit code.

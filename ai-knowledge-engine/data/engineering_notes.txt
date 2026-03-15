@@ -1,0 +1,1 @@
+Knowledge Memory Systems require robust vector embeddings to capture semantic meaning. We use 500-token chunks with an overlap of 50 tokens to ensure context continuity. Semantic search leverages Cosine Similarity or Dot Product to retrieve documents against natural language queries efficiently within a high-speed database like Endee.
