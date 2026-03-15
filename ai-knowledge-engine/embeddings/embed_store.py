@@ -148,7 +148,7 @@ class EmbeddingPipeline:
 
                 vector_obj = {
                     "id": doc_uuid,
-                    "vector": embedding.tolist(),
+                    "vector": embedding,
                     "meta": json.dumps(metadata)
                 }
                 vectors_payload.append(vector_obj)
