@@ -11,7 +11,7 @@ import argparse
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
-from openai import OpenAI
+import google.generativeai as genai
 from retrieval.endee_client import EndeeClient
 from config.config import EMBEDDING_MODEL_NAME, EMBEDDING_DIMENSION, ENDEE_HOST, ENDEE_PORT
 
@@ -24,9 +24,9 @@ class ContextRetriever:
         self.endee_client = EndeeClient(host=ENDEE_HOST, port=int(ENDEE_PORT))
         self.index_name = index_name
         
-        # Initialize OpenAI client
-        api_key = os.getenv("OPENAI_API_KEY")
-        self.client = OpenAI(api_key=api_key)
+        # Initialize Gemini
+        api_key = os.getenv("GEMINI_API_KEY")
+        genai.configure(api_key=api_key)
         self.model_name = EMBEDDING_MODEL_NAME
         self.vector_dim = EMBEDDING_DIMENSION
 
@@ -35,12 +35,13 @@ class ContextRetriever:
         Takes a raw user query string, converts to an embedding,
         and retrieves top matching chunks from Endee.
         """
-        # Step 1: Embed query string via OpenAI
-        response = self.client.embeddings.create(
-            input=[query.replace("\n", " ")],
-            model=self.model_name
+        # Step 1: Embed query string via Gemini
+        result = genai.embed_content(
+            model=self.model_name,
+            content=query,
+            task_type="retrieval_query"
         )
-        query_embedding = response.data[0].embedding
+        query_embedding = result['embedding']
 
         # Step 2: Query the DB
         raw_results = self.endee_client.search(

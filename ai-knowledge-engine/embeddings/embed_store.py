@@ -15,7 +15,7 @@ import time
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
-from openai import OpenAI
+import google.generativeai as genai
 from utils.text_processing import process_document
 from config.config import DATA_DIR, EMBEDDING_MODEL_NAME, EMBEDDING_DIMENSION, CHUNK_SIZE, CHUNK_OVERLAP, ENDEE_HOST, ENDEE_PORT
 from retrieval.endee_client import EndeeClient
@@ -31,13 +31,13 @@ class EmbeddingPipeline:
     def __init__(self, index_name: str = "ai_knowledge"):
         """
         Initialize the embedding pipeline.
-        Connects to the OpenAI client and the Endee Vector Database.
+        Connects to the Gemini client and the Endee Vector Database.
         """
-        logger.info(f"Using OpenAI embedding model '{EMBEDDING_MODEL_NAME}'")
+        logger.info(f"Using Gemini embedding model '{EMBEDDING_MODEL_NAME}'")
         
-        # Initialize OpenAI client
-        api_key = os.getenv("OPENAI_API_KEY")
-        self.client = OpenAI(api_key=api_key)
+        # Initialize Gemini
+        api_key = os.getenv("GEMINI_API_KEY")
+        genai.configure(api_key=api_key)
         self.model_name = EMBEDDING_MODEL_NAME
         self.vector_dim = EMBEDDING_DIMENSION
         
@@ -126,14 +126,16 @@ class EmbeddingPipeline:
             logger.info(f"Number of chunks created: {len(chunks)}")
             ingestion_stats["chunks"] += len(chunks)
 
-            # Step 2: Batch Embedding Generation via OpenAI
+            # Step 2: Batch Embedding Generation via Gemini
             logger.info(f"Generating batch embeddings for '{filename}'...")
             
-            # Clean chunks for OpenAI (replace newlines)
-            clean_chunks = [c.replace("\n", " ") for c in chunks]
-            
-            resp = self.client.embeddings.create(input=clean_chunks, model=self.model_name)
-            embeddings = [data.embedding for data in resp.data]
+            result = genai.embed_content(
+                model=self.model_name,
+                content=chunks,
+                task_type="retrieval_document",
+                title="Knowledge Base Ingestion"
+            )
+            embeddings = result['embedding']
             
             # Step 3: Prepare Endee payloads with metadata
             vectors_payload = []

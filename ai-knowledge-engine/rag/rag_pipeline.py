@@ -9,7 +9,7 @@ from typing import Dict, Any
 
 import logging
 import time
-from openai import OpenAI
+import google.generativeai as genai
 from dotenv import load_dotenv
 
 # Configure Logging
@@ -26,7 +26,7 @@ sys.path.append(BASE_DIR)
 from retrieval.retrieve_context import ContextRetriever
 from config.config import LLM_MODEL
 
-# Load environment variables (like OPENAI_API_KEY)
+# Load environment variables (like GEMINI_API_KEY)
 load_dotenv()
 
 class RAGPipeline:
@@ -34,12 +34,12 @@ class RAGPipeline:
         self.retriever = ContextRetriever(index_name=index_name)
         
         # Verify API Key
-        api_key = os.getenv("OPENAI_API_KEY")
+        api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
-            print("WARNING: OPENAI_API_KEY is not set.")
+            print("WARNING: GEMINI_API_KEY is not set.")
             
-        self.client = OpenAI(api_key=api_key)
-        self.llm_model = LLM_MODEL
+        genai.configure(api_key=api_key)
+        self.model = genai.GenerativeModel(LLM_MODEL)
 
     def answer_question(self, query: str, top_k: int = 3) -> Dict[str, Any]:
         """
@@ -101,19 +101,12 @@ USER QUESTION:
 
 ANSWER:"""
 
-        # Step 3: Call LLM
+        # Step 3: Call Gemini
         try:
-            response = self.client.chat.completions.create(
-                model=self.llm_model,
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant. Use provided context and cite using [number]."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.3
-            )
-            answer = response.choices[0].message.content
+            response = self.model.generate_content(prompt)
+            answer = response.text
         except Exception as e:
-            answer = f"Error generating response from LLM: {str(e)}"
+            answer = f"Error generating response from Gemini: {str(e)}"
             
         duration = round(time.time() - start_time, 2)
         

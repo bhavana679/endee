@@ -9,14 +9,14 @@ DB_DIR = os.path.join(BASE_DIR, "db")
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
 
-# Embedding settings
-EMBEDDING_MODEL_NAME = "text-embedding-3-small"
-EMBEDDING_DIMENSION = 1536
+# Embedding settings (Gemini)
+EMBEDDING_MODEL_NAME = "models/text-embedding-004"
+EMBEDDING_DIMENSION = 768
 
-# Endee Vector DB settings (Sample placeholders)
+# Endee Vector DB settings
 ENDEE_HOST = os.getenv("ENDEE_HOST", "localhost")
 ENDEE_PORT = os.getenv("ENDEE_PORT", "8080")
 
-# LLM configurations (Sample placeholders)
-LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openai")
-LLM_MODEL = os.getenv("LLM_MODEL", "gpt-3.5-turbo")
+# LLM configurations (Gemini)
+LLM_PROVIDER = "gemini"
+LLM_MODEL = "gemini-1.5-flash"
