@@ -11,9 +11,9 @@ import argparse
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
-from sentence_transformers import SentenceTransformer
+from openai import OpenAI
 from retrieval.endee_client import EndeeClient
-from config.config import EMBEDDING_MODEL_NAME, ENDEE_HOST, ENDEE_PORT
+from config.config import EMBEDDING_MODEL_NAME, EMBEDDING_DIMENSION, ENDEE_HOST, ENDEE_PORT
 
 class ContextRetriever:
     """
@@ -24,17 +24,23 @@ class ContextRetriever:
         self.endee_client = EndeeClient(host=ENDEE_HOST, port=int(ENDEE_PORT))
         self.index_name = index_name
         
-        # Load the same sentence transformer as ingestion pipeline
-        self.model = SentenceTransformer(EMBEDDING_MODEL_NAME)
-        self.vector_dim = self.model.get_sentence_embedding_dimension()
+        # Initialize OpenAI client
+        api_key = os.getenv("OPENAI_API_KEY")
+        self.client = OpenAI(api_key=api_key)
+        self.model_name = EMBEDDING_MODEL_NAME
+        self.vector_dim = EMBEDDING_DIMENSION
 
     def search(self, query: str, top_k: int = 3) -> list[dict]:
         """
         Takes a raw user query string, converts to an embedding,
         and retrieves top matching chunks from Endee.
         """
-        # Step 1: Embed query string (with normalization to match ingested cosine metrics)
-        query_embedding = self.model.encode([query], normalize_embeddings=True)[0].tolist()
+        # Step 1: Embed query string via OpenAI
+        response = self.client.embeddings.create(
+            input=[query.replace("\n", " ")],
+            model=self.model_name
+        )
+        query_embedding = response.data[0].embedding
 
         # Step 2: Query the DB
         raw_results = self.endee_client.search(

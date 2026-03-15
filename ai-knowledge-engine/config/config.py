@@ -10,7 +10,8 @@ CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
 
 # Embedding settings
-EMBEDDING_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+EMBEDDING_MODEL_NAME = "text-embedding-3-small"
+EMBEDDING_DIMENSION = 1536
 
 # Endee Vector DB settings (Sample placeholders)
 ENDEE_HOST = os.getenv("ENDEE_HOST", "localhost")

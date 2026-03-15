@@ -51,8 +51,9 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Constants
-API_BASE_URL = "http://localhost:8000"
+import os
+# Constants from environment or defaults
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
 
 # Sidebar: Management & Settings
 with st.sidebar:

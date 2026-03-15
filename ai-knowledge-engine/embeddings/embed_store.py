@@ -15,9 +15,9 @@ import time
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
-from sentence_transformers import SentenceTransformer
+from openai import OpenAI
 from utils.text_processing import process_document
-from config.config import DATA_DIR, EMBEDDING_MODEL_NAME, CHUNK_SIZE, CHUNK_OVERLAP, ENDEE_HOST, ENDEE_PORT
+from config.config import DATA_DIR, EMBEDDING_MODEL_NAME, EMBEDDING_DIMENSION, CHUNK_SIZE, CHUNK_OVERLAP, ENDEE_HOST, ENDEE_PORT
 from retrieval.endee_client import EndeeClient
 
 # Configure Structured Logging
@@ -31,11 +31,15 @@ class EmbeddingPipeline:
     def __init__(self, index_name: str = "ai_knowledge"):
         """
         Initialize the embedding pipeline.
-        Connects to the embedding model and the Endee Vector Database.
+        Connects to the OpenAI client and the Endee Vector Database.
         """
-        logger.info(f"Loading embedding model '{EMBEDDING_MODEL_NAME}'...")
-        self.model = SentenceTransformer(EMBEDDING_MODEL_NAME)
-        self.vector_dim = self.model.get_sentence_embedding_dimension()
+        logger.info(f"Using OpenAI embedding model '{EMBEDDING_MODEL_NAME}'")
+        
+        # Initialize OpenAI client
+        api_key = os.getenv("OPENAI_API_KEY")
+        self.client = OpenAI(api_key=api_key)
+        self.model_name = EMBEDDING_MODEL_NAME
+        self.vector_dim = EMBEDDING_DIMENSION
         
         self.endee_client = EndeeClient(host=ENDEE_HOST, port=int(ENDEE_PORT))
         self.index_name = index_name
@@ -122,9 +126,14 @@ class EmbeddingPipeline:
             logger.info(f"Number of chunks created: {len(chunks)}")
             ingestion_stats["chunks"] += len(chunks)
 
-            # Step 2: Batch Embedding Generation with NORMALIZATION
+            # Step 2: Batch Embedding Generation via OpenAI
             logger.info(f"Generating batch embeddings for '{filename}'...")
-            embeddings = self.model.encode(chunks, normalize_embeddings=True)
+            
+            # Clean chunks for OpenAI (replace newlines)
+            clean_chunks = [c.replace("\n", " ") for c in chunks]
+            
+            resp = self.client.embeddings.create(input=clean_chunks, model=self.model_name)
+            embeddings = [data.embedding for data in resp.data]
             
             # Step 3: Prepare Endee payloads with metadata
             vectors_payload = []
