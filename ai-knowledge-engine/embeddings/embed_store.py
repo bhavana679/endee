@@ -131,9 +131,7 @@ class EmbeddingPipeline:
             
             result = genai.embed_content(
                 model=self.model_name,
-                content=chunks,
-                task_type="retrieval_document",
-                title="Knowledge Base Ingestion"
+                content=chunks
             )
             embeddings = result['embedding']
             

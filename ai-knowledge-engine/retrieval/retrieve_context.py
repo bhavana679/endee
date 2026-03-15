@@ -38,8 +38,7 @@ class ContextRetriever:
         # Step 1: Embed query string via Gemini
         result = genai.embed_content(
             model=self.model_name,
-            content=query,
-            task_type="retrieval_query"
+            content=query
         )
         query_embedding = result['embedding']
 
